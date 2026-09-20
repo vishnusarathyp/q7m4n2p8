@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+<meta name="referrer" content="no-referrer">
+<meta name="description" content="Private viewer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+<title>Private Viewer</title>
+<style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#10141e;color:#e8edf7;font:14px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif}.box{width:min(440px,calc(100% - 32px));padding:42px;text-align:center;border:1px solid #2b3547;border-radius:16px;background:#181f2c}.mark{font-size:34px;color:#9b90ff}h1{font-size:20px}p{color:#9ba8bc}</style>
+</head>
+<body><main class="box"><div class="mark">◇</div><h1>Private viewer</h1><p id="message">Use the complete link supplied by the owner.</p></main>
+<script>
+'use strict';
+function decode(value){value=value.replace(/-/g,'+').replace(/_/g,'/');while(value.length%4)value+='=';return Uint8Array.from(atob(value),c=>c.charCodeAt(0))}
+async function openView(){try{const fragment=location.hash.slice(1);if(!fragment)return;const raw=new Uint8Array(await(await fetch('snapshot.bin',{cache:'no-store'})).arrayBuffer());const key=await crypto.subtle.importKey('raw',decode(fragment),{name:'AES-GCM'},false,['decrypt']);const clear=await crypto.subtle.decrypt({name:'AES-GCM',iv:raw.slice(0,12),additionalData:new TextEncoder().encode('pv1')},key,raw.slice(12));document.open();document.write(new TextDecoder().decode(clear));document.close()}catch{document.getElementById('message').textContent='This link is incomplete or no longer valid.'}}
+openView();
+</script></body></html>
